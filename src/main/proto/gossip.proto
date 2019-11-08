@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option java_package = "com.github.lant.gossip.rpc";
+option java_multiple_files = true;
+
+service GossipListener {
+    rpc GetLatestValue(google.protobuf.Empty) returns (Value) {}
+    rpc ReceiveValue(Value) returns (Ack) {}
+}
+
+
+message Value {
+    int32 timestamp = 1;
+    string value = 2;
+}
+
+message Ack {
+    bool success = 1;
+}
