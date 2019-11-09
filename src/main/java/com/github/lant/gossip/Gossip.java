@@ -2,18 +2,18 @@ package com.github.lant.gossip;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.github.lant.gossip.rpc.Value;
+import com.github.lant.gossip.server.GossipServer;
 
-import java.util.Random;
+import java.io.IOException;
 
 public class Gossip {
-
-    private static final Integer PROPAGATION_LEVEL = 3;
 
     @Parameter(names={"--port", "-p"}, required = true)
     int port;
 
-    @Parameter(names={"--machines", "-m"}, required = true)
-    int totalMachines;
+    @Parameter(names={"--machines", "-m"})
+    int totalMachines = 3;
 
     @Parameter(names = "--skip-state", description = "Don't try to recover old state")
     private boolean tryToRecover = true;
@@ -21,54 +21,32 @@ public class Gossip {
     @Parameter(names = "--propagate", description = "Propagate new value")
     private String startPropagation = null;
 
-
-    private void propagateNewValue(String newValue) {
-        for (int comms = 0; comms < PROPAGATION_LEVEL; comms++) {
-            String destinationNode = getRandomMachine();
-            while (!propagateToNode(destinationNode, newValue)) {
-                destinationNode = getRandomMachine();
-            }
-            System.out.printf("[Machine %d] Successfully propagated new value to %s", port, destinationNode);
-        }
-    }
-
-    private boolean propagateToNode(String destinationNode, String newValue) {
-        // try to send data to that node
-        return true;
-    }
-
-    private String getRandomMachine() {
-        int nextMachine;
-        do {
-            nextMachine = new Random().nextInt(totalMachines);
-        } while (nextMachine == port);
-        return Integer.toString(nextMachine);
-    }
-
-    private void run() {
+    private void run() throws IOException {
         System.out.printf("Hi, I'm %d\n", port);
+        StateHandler stateHandler = new StateHandler();
+        GossipStrategy gossipStrategy = new GossipStrategy(port, totalMachines);
 
         if (tryToRecover) {
             System.out.println("Try to recover state from a previous execution");
             // get the old value from the file.
-
+            stateHandler.recoverFromFile();
         }
 
         if (startPropagation != null) {
             System.out.printf("[Machine %d] I'm propagating %s to the network\n", port, startPropagation);
-            propagateNewValue(startPropagation);
+            Value newValue = Value.newBuilder().setValue(startPropagation).setTimestamp(System.currentTimeMillis()).build();
+            gossipStrategy.propagate(newValue);
         }
 
         // just listen to incoming messages
-        listenToMessages();
-
-        System.out.printf("[Machine %d] Received termination signal. Bye", port);
+        listenToMessages(stateHandler, gossipStrategy);
     }
 
-    private void listenToMessages() {
+    private void listenToMessages(StateHandler stateHandler, GossipStrategy gossipStrategy) throws IOException {
+        new GossipServer(port, stateHandler, gossipStrategy).start();
     }
 
-    public static void main(String ...args) {
+    public static void main(String ...args) throws IOException {
         Gossip gossip = new Gossip();
         JCommander.newBuilder()
                 .addObject(gossip)
