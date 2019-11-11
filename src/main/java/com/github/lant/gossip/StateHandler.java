@@ -4,6 +4,8 @@ import com.github.lant.gossip.rpc.Value;
 import com.github.lant.gossip.rpc.ValueOrBuilder;
 
 public class StateHandler {
+    private Value current = null;
+
     /**
      * Critical operation, if it does not succeed a Runtime Exception that terminates the program is launched.
      */
@@ -12,18 +14,18 @@ public class StateHandler {
 
 
     public Value currentOrNull() {
-        return null;
+        return current;
     }
 
     public Value getValue() {
-        return null;
+        return current;
     }
 
     public boolean hasCurrentValue() {
-        return false;
+        return current != null;
     }
 
     public void updateCurrent(Value request) {
-
+        current = request;
     }
 }
