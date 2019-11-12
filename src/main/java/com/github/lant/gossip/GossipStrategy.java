@@ -39,10 +39,11 @@ public class GossipStrategy {
         for (int comms = 0; comms < PROPAGATION_LEVEL; comms++) {
             try {
                 int destinationNode = selectObjectiveNode();
+                log.info("Sending value to node: {}", destinationNode);
                 if (propagateToNode(destinationNode, newValue)) {
-                    System.out.printf("[Machine %d] Successfully propagated new value to %s", port, destinationNode);
+                    log.info("[Machine {}] Successfully propagated new value to {}", port, destinationNode);
                 } else {
-                    System.out.printf("[Machine %d] Did not propagate new value to %s", port, destinationNode);
+                    log.info("[Machine {}] Did not propagate new value to {}", port, destinationNode);
                 }
             } catch (Exception e) {
                 // network exception or things like these

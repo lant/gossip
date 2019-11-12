@@ -21,7 +21,7 @@ public class Gossip {
     @Parameter(names = "--propagate", description = "Propagate new value")
     private String startPropagation = null;
 
-    private void run() throws IOException {
+    private void run() throws IOException, InterruptedException {
         System.out.printf("Hi, I'm %d\n", port);
         StateHandler stateHandler = new StateHandler();
         GossipStrategy gossipStrategy = new GossipStrategy(port, totalMachines);
@@ -42,11 +42,11 @@ public class Gossip {
         listenToMessages(stateHandler, gossipStrategy);
     }
 
-    private void listenToMessages(StateHandler stateHandler, GossipStrategy gossipStrategy) throws IOException {
+    private void listenToMessages(StateHandler stateHandler, GossipStrategy gossipStrategy) throws IOException, InterruptedException {
         new GossipServer(port, stateHandler, gossipStrategy).start();
     }
 
-    public static void main(String ...args) throws IOException {
+    public static void main(String ...args) throws IOException, InterruptedException {
         Gossip gossip = new Gossip();
         JCommander.newBuilder()
                 .addObject(gossip)

@@ -19,9 +19,10 @@ public class GossipServer {
                 .build();
     }
 
-    public void start() throws IOException {
+    public void start() throws IOException, InterruptedException {
         server.start();
         log.info("Server started");
+        server.awaitTermination();
     }
 
 }

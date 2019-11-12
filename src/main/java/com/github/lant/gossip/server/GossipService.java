@@ -36,19 +36,22 @@ public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
 
         // This node does not have any value at all yet (first branch)
         if (!stateHandler.hasCurrentValue()) {
+            log.info("I did not have any value, now I received one!");
             stateHandler.updateCurrent(request);
             responseObserver.onNext(Ack.newBuilder().setSuccess(true).build());
-        }
-
+            log.info("I'll propagate it :)");
+            gossipStrategy.propagate(request);
         // This node has that same value (or a new one) (second branch)
-        if (stateHandler.getValue().getTimestamp() >= request.getTimestamp()) {
+        } else if (stateHandler.getValue().getTimestamp() >= request.getTimestamp()) {
             // my current value is the same or newer than one sent by another node. Ignore.
+            log.info("Got a repeated value. Ignoring!");
             responseObserver.onNext(Ack.newBuilder().setSuccess(false).build());
-
         // This node has an outdated value (third branch)
         } else {
+            log.info("Updated my value, now I have a new one");
             stateHandler.updateCurrent(request);
             responseObserver.onNext(Ack.newBuilder().setSuccess(true).build());
+            log.info("I'll propagate it :)");
             gossipStrategy.propagate(request);
         }
 
