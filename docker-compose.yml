@@ -1,0 +1,27 @@
+# https://blog.alejandrocelaya.com/2017/04/21/set-specific-ip-addresses-to-docker-containers-created-with-docker-compose/
+version: '3'
+
+services:
+    node_1:
+        container_name: node_1
+        build:
+            context: .
+            dockerfile: Dockerfile
+        networks:
+            testing_net:
+                ipv4_address: 172.28.1.1
+    node_propagator:
+        container_name: node_propagator
+        build:
+            context: .
+            dockerfile: Dockerfile.client
+        networks:
+            testing_net:
+                ipv4_address: 172.28.1.100
+
+networks:
+    testing_net:
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.28.0.0/16
