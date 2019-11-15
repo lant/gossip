@@ -6,11 +6,9 @@ import com.github.lant.gossip.rpc.Value;
 import com.github.lant.gossip.server.GossipServer;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 public class Gossip {
-
-    @Parameter(names={"--port", "-p"}, required = true)
-    int port;
 
     @Parameter(names={"--machines", "-m"})
     int totalMachines = 3;
@@ -22,9 +20,9 @@ public class Gossip {
     private String startPropagation = null;
 
     private void run() throws IOException, InterruptedException {
-        System.out.printf("Hi, I'm %d\n", port);
+        System.out.printf("Hi, I'm %s\n", InetAddress.getLocalHost().getHostAddress());
         StateHandler stateHandler = new StateHandler();
-        GossipStrategy gossipStrategy = new GossipStrategy(port, totalMachines);
+        GossipStrategy gossipStrategy = new GossipStrategy(totalMachines);
 
         if (tryToRecover) {
             System.out.println("Try to recover state from a previous execution");
@@ -33,7 +31,7 @@ public class Gossip {
         }
 
         if (startPropagation != null) {
-            System.out.printf("[Machine %d] I'm propagating %s to the network\n", port, startPropagation);
+            System.out.printf("[Machine %s] I'm propagating %s to the network\n", InetAddress.getLocalHost().getHostAddress(), startPropagation);
             Value newValue = Value.newBuilder().setValue(startPropagation).setTimestamp(System.currentTimeMillis()).build();
             gossipStrategy.propagate(newValue);
         }
@@ -43,7 +41,7 @@ public class Gossip {
     }
 
     private void listenToMessages(StateHandler stateHandler, GossipStrategy gossipStrategy) throws IOException, InterruptedException {
-        new GossipServer(port, stateHandler, gossipStrategy).start();
+        new GossipServer(stateHandler, gossipStrategy).start();
     }
 
     public static void main(String ...args) throws IOException, InterruptedException {

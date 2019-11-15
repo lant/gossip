@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
-    private static final Logger log = LoggerFactory.getLogger(GossipServer.class);
+    private static final Logger log = LoggerFactory.getLogger(GossipService.class);
     private final StateHandler stateHandler;
     private final GossipStrategy gossipStrategy;
 
@@ -31,7 +31,7 @@ public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
 
     @Override
     public void receiveValue(Value request, StreamObserver<Ack> responseObserver) {
-        log.info("Somebody sent me a new value");
+        log.info("Somebody sent me a new value ({})", request.getValue());
         // 3 things could happen here:
 
         // This node does not have any value at all yet (first branch)
@@ -39,23 +39,21 @@ public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
             log.info("I did not have any value, now I received one!");
             stateHandler.updateCurrent(request);
             responseObserver.onNext(Ack.newBuilder().setSuccess(true).build());
-            log.info("I'll propagate it :)");
+            log.info("I'll propagate it :) to someone");
             gossipStrategy.propagate(request);
         // This node has that same value (or a new one) (second branch)
         } else if (stateHandler.getValue().getTimestamp() >= request.getTimestamp()) {
             // my current value is the same or newer than one sent by another node. Ignore.
-            log.info("Got a repeated value. Ignoring!");
+            log.info("Got a repeated value ({}). Ignoring!", request.getValue());
             responseObserver.onNext(Ack.newBuilder().setSuccess(false).build());
         // This node has an outdated value (third branch)
         } else {
-            log.info("Updated my value, now I have a new one");
+            log.info("Updated my value, now I have a new one ({})", request.getValue());
             stateHandler.updateCurrent(request);
             responseObserver.onNext(Ack.newBuilder().setSuccess(true).build());
             log.info("I'll propagate it :)");
             gossipStrategy.propagate(request);
         }
-
         responseObserver.onCompleted();
     }
-
 }

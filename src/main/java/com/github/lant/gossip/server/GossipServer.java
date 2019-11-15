@@ -10,12 +10,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class GossipServer {
+    public static final int RPC_PORT = 7000;
     private static final Logger log = LoggerFactory.getLogger(GossipServer.class);
 
     private final Server server;
 
-    public GossipServer(int port, StateHandler stateHandler, GossipStrategy gossipStrategy) {
-        server = ServerBuilder.forPort(port).addService(new GossipService(stateHandler, gossipStrategy))
+    public GossipServer(StateHandler stateHandler, GossipStrategy gossipStrategy) {
+        server = ServerBuilder.forPort(RPC_PORT).addService(new GossipService(stateHandler, gossipStrategy))
                 .build();
     }
 
