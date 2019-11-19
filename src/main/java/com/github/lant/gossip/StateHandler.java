@@ -1,17 +1,15 @@
 package com.github.lant.gossip;
 
 import com.github.lant.gossip.rpc.Value;
-import com.github.lant.gossip.rpc.ValueOrBuilder;
 
+/**
+ * This class needs to be implemented if we want the system to be able to persist the state between reboots.
+ */
 public class StateHandler {
     private Value current = null;
 
-    /**
-     * Critical operation, if it does not succeed a Runtime Exception that terminates the program is launched.
-     */
     public void recoverFromFile() {
     }
-
 
     public Value currentOrNull() {
         return current;

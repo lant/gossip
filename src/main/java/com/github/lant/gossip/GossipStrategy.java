@@ -17,13 +17,19 @@ import java.util.concurrent.Executors;
 
 import static com.github.lant.gossip.server.GossipServer.RPC_PORT;
 
+/**
+ * This class implements the gossip protocol per se. It takes the decision to send a propagation value to
+ * another host. It needs to react to failures.
+ */
 public class GossipStrategy {
 
+    // all the nodes will be in this network
     private static final String subnet = "172.28.1.";
     private static final Logger log = LoggerFactory.getLogger(GossipServer.class);
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
 
+    // it will try to propate the value to 3 nodes
     private static final Integer FANOUT = 3;
     private final int totalMachines;
 
@@ -31,7 +37,7 @@ public class GossipStrategy {
         this.totalMachines = totalMachines;
     }
 
-    // TODO specify why this is threaded
+    // fire and forget. Propagate the value without waiting for the result.
     public void propagate(Value newValue) {
         executor.submit(() -> tryToPropagate(newValue));
     }
@@ -54,6 +60,7 @@ public class GossipStrategy {
         return true;
     }
 
+    // RPC operation to send the vale to the other node.
     private boolean propagateToNode(String destinationNode, Value newValue) {
         Channel channel = ManagedChannelBuilder.forAddress(destinationNode, RPC_PORT).usePlaintext().build();
         GossipListenerGrpc.GossipListenerBlockingStub client = GossipListenerGrpc.newBlockingStub(channel);
@@ -61,6 +68,10 @@ public class GossipStrategy {
         return response.getSuccess();
     }
 
+    /**
+     * Selects another node in the cluster
+     * This implementation is pretty naive, just gets a random one.
+     */
     private String selectObjectiveNode() {
         int nextMachine;
         int hostIp = 0;

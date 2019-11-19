@@ -8,14 +8,21 @@ import com.github.lant.gossip.server.GossipServer;
 import java.io.IOException;
 import java.net.InetAddress;
 
+/**
+ * Main class that starts the server and checks the CLI's
+ */
 public class Gossip {
 
+    // used to know the maximum IP ranges
     @Parameter(names={"--machines", "-m"})
     int totalMachines = 3;
 
+    // When a server starts it can try to read its old persisted state (if any)
     @Parameter(names = "--skip-state", description = "Don't try to recover old state")
     private boolean tryToRecover = true;
 
+    // If the server has this flag it will propagate a new value to the rest of the
+    // cluster. This could be a separate program.
     @Parameter(names = "--propagate", description = "Propagate new value")
     private String startPropagation = null;
 

@@ -1,4 +1,3 @@
-# https://blog.alejandrocelaya.com/2017/04/21/set-specific-ip-addresses-to-docker-containers-created-with-docker-compose/
 version: '3'
 
 services:
@@ -26,6 +25,7 @@ services:
         networks:
             testing_net:
                 ipv4_address: 172.28.1.2
+
     node_propagator:
         container_name: node_propagator
         build:
