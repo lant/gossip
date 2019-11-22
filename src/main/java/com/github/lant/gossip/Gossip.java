@@ -15,7 +15,7 @@ public class Gossip {
 
     // used to know the maximum IP ranges
     @Parameter(names={"--machines", "-m"})
-    int totalMachines = 3;
+    int totalMachines = 4;
 
     // When a server starts it can try to read its old persisted state (if any)
     @Parameter(names = "--skip-state", description = "Don't try to recover old state")
@@ -30,6 +30,7 @@ public class Gossip {
         System.out.printf("Hi, I'm %s\n", InetAddress.getLocalHost().getHostAddress());
         StateHandler stateHandler = new StateHandler();
         GossipStrategy gossipStrategy = new GossipStrategy(totalMachines);
+        PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler);
 
         if (tryToRecover) {
             System.out.println("Try to recover state from a previous execution");
@@ -37,13 +38,19 @@ public class Gossip {
             stateHandler.recoverFromFile();
         }
 
+        // TODO remove this and put into a client or a specialized role.
         if (startPropagation != null) {
             System.out.printf("[Machine %s] I'm propagating %s to the network\n", InetAddress.getLocalHost().getHostAddress(), startPropagation);
             Value newValue = Value.newBuilder().setValue(startPropagation).setTimestamp(System.currentTimeMillis()).build();
+            // update myself
+            stateHandler.updateCurrent(newValue);
             gossipStrategy.propagate(newValue);
         }
 
-        // just listen to incoming messages
+        // start the periodic propagation thread.
+        new Thread(periodicPropagator).start();
+
+        // just listen to incoming messages and block
         listenToMessages(stateHandler, gossipStrategy);
     }
 
