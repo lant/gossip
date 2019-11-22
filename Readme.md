@@ -19,9 +19,9 @@ To run the system you need to compile the code:
 and after that you can execute the docker: 
 ```bash
 docker-compose build
-docker-compose up 
+docker-compose up --scale node=10
 ```
 
-This will star the instances (3), and after 5 seconds it will start another one that will
+This will start the instances (10), and after 5 seconds it will start another one that will
 propagate a new value to the rest of the system. 
 

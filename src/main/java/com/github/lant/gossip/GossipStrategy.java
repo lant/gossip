@@ -24,7 +24,7 @@ import static com.github.lant.gossip.server.GossipServer.RPC_PORT;
 public class GossipStrategy {
 
     // all the nodes will be in this network
-    private static final String subnet = "172.28.1.";
+    private static final String subnet = "172.28.0.";
     private static final Logger log = LoggerFactory.getLogger(GossipServer.class);
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
@@ -42,22 +42,19 @@ public class GossipStrategy {
         executor.submit(() -> tryToPropagate(newValue));
     }
 
-    private Boolean tryToPropagate(Value newValue) {
+    private void tryToPropagate(Value newValue) {
         for (int comms = 0; comms < FANOUT; comms++) {
+            String destinationNode = selectObjectiveNode();
             try {
-                String destinationNode = selectObjectiveNode();
                 log.info("Sending value to node: {}", destinationNode);
-                if (propagateToNode(destinationNode, newValue)) {
-                    log.info("[Machine {}] Successfully propagated new value to {}", InetAddress.getLocalHost().getHostAddress(), destinationNode);
-                } else {
-                    log.info("[Machine {}] Did not propagate new value to {}", InetAddress.getLocalHost().getHostAddress(), destinationNode);
+                if (!propagateToNode(destinationNode, newValue)) {
+                    log.info("[Machine {}] Could not communicate with {}", InetAddress.getLocalHost().getHostAddress(), destinationNode);
                 }
             } catch (Exception e) {
                 // network exception or things like these
-                log.error(e.getMessage());
+                log.error("Could not propagate to {}, Reason: {}", destinationNode, e.getMessage());
             }
         }
-        return true;
     }
 
     // RPC operation to send the vale to the other node.

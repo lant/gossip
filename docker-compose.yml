@@ -1,39 +1,19 @@
 version: '3'
 
 services:
-    node_0:
-        container_name: node_0
+    node:
         build:
             context: .
             dockerfile: Dockerfile
         networks:
-            testing_net:
-                ipv4_address: 172.28.1.0
-    node_1:
-        container_name: node_1
-        build:
-            context: .
-            dockerfile: Dockerfile
-        networks:
-            testing_net:
-                ipv4_address: 172.28.1.1
-    node_2:
-        container_name: node_2
-        build:
-            context: .
-            dockerfile: Dockerfile
-        networks:
-            testing_net:
-                ipv4_address: 172.28.1.2
+            - testing_net
 
-    node_propagator:
-        container_name: node_propagator
+    propagator:
         build:
             context: .
             dockerfile: Dockerfile-propagator
         networks:
-            testing_net:
-                ipv4_address: 172.28.1.3
+            - testing_net
 
 networks:
     testing_net:

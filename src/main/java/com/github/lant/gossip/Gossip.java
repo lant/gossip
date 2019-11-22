@@ -15,7 +15,7 @@ public class Gossip {
 
     // used to know the maximum IP ranges
     @Parameter(names={"--machines", "-m"})
-    int totalMachines = 4;
+    int totalMachines = 10;
 
     // When a server starts it can try to read its old persisted state (if any)
     @Parameter(names = "--skip-state", description = "Don't try to recover old state")
