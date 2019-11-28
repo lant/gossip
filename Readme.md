@@ -22,6 +22,30 @@ docker-compose build
 docker-compose up --scale node=10
 ```
 
-This will start the instances (10), and after 5 seconds it will start another one that will
-propagate a new value to the rest of the system. 
+This will start the 10 instances that will listen for new propagation values. 
 
+There is a script called `propagate` that's using the class: `com.github.lant.gossip.Propagate` in order to 
+propagate values. It takes two parameters: `port` and `value`. 
+
+It will propagate the `value` to the node listening to that port. In order to execute it run `docker ps` to get
+the port mappings: 
+
+```bash
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                    NAMES
+b636473bfd3e        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 15 seconds       0.0.0.0:7012->7000/tcp   gossip_node_9
+9922040ab0b9        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 14 seconds       0.0.0.0:7016->7000/tcp   gossip_node_6
+4520094644e3        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 14 seconds       0.0.0.0:7017->7000/tcp   gossip_node_10
+e54d26064f8e        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 15 seconds       0.0.0.0:7013->7000/tcp   gossip_node_8
+41179de9eec4        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 14 seconds       0.0.0.0:7014->7000/tcp   gossip_node_5
+70b2b5cc6831        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 15 seconds       0.0.0.0:7018->7000/tcp   gossip_node_7
+11de74af17f6        gossip_node         "/bin/sh -c /gossip/…"   17 seconds ago      Up 15 seconds       0.0.0.0:7015->7000/tcp   gossip_node_4
+b857e04524eb        gossip_node         "/bin/sh -c /gossip/…"   8 minutes ago       Up 17 seconds       0.0.0.0:7011->7000/tcp   gossip_node_3
+25d4bd3acfc0        gossip_node         "/bin/sh -c /gossip/…"   8 minutes ago       Up 17 seconds       0.0.0.0:7009->7000/tcp   gossip_node_1
+bf28387cf26c        gossip_node         "/bin/sh -c /gossip/…"   8 minutes ago       Up 16 seconds       0.0.0.0:7010->7000/tcp   gossip_node_2
+```
+
+and then just use one of the mapped ones: 
+
+`./propagate -p 7009 --value asdf`
+
+This will propagate the value `asdf` into the nodes. It will use `node_1` as the initial propagator.
