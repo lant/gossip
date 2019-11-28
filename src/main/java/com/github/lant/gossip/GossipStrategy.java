@@ -6,6 +6,7 @@ import com.github.lant.gossip.rpc.Value;
 import com.github.lant.gossip.server.GossipServer;
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
+import io.jaegertracing.internal.JaegerTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class GossipStrategy {
     private static final Integer FANOUT = 3;
     private final int totalMachines;
 
-    GossipStrategy(int totalMachines) {
+    GossipStrategy(int totalMachines, JaegerTracer tracer) {
         this.totalMachines = totalMachines;
     }
 

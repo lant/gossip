@@ -1,15 +1,19 @@
 package com.github.lant.gossip;
 
+import io.jaegertracing.internal.JaegerTracer;
+
 public class PeriodicPropagator implements Runnable {
 
     private static final long TEN_SECONDS = 10_000;
     private final GossipStrategy gossipStrategy;
     private final StateHandler stateHandler;
+    private JaegerTracer tracer;
     private boolean keepRunning = true;
 
-    public PeriodicPropagator(GossipStrategy gossipStrategy, StateHandler stateHandler) {
+    public PeriodicPropagator(GossipStrategy gossipStrategy, StateHandler stateHandler, JaegerTracer tracer) {
         this.gossipStrategy = gossipStrategy;
         this.stateHandler = stateHandler;
+        this.tracer = tracer;
     }
 
     @Override

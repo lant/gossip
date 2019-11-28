@@ -5,7 +5,6 @@ import com.beust.jcommander.Parameter;
 import com.github.lant.gossip.server.GossipServer;
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.JaegerTracer;
-import io.opentracing.Span;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -30,16 +29,11 @@ public class Gossip {
     private boolean tryToRecover = true;
 
     private void run() throws IOException, InterruptedException {
+        JaegerTracer tracer = initTracer("gossip");
         System.out.printf("Hi, I'm %s\n", InetAddress.getLocalHost().getHostAddress());
         StateHandler stateHandler = new StateHandler();
-        GossipStrategy gossipStrategy = new GossipStrategy(totalMachines);
-        PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler);
-
-        JaegerTracer tracer = initTracer("gossip");
-
-        Span span = tracer.buildSpan("doing nothing really").start();
-        Thread.sleep(1000);
-        span.finish();
+        GossipStrategy gossipStrategy = new GossipStrategy(totalMachines, tracer);
+        PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler, tracer);
 
         if (tryToRecover) {
             System.out.println("Try to recover state from a previous execution");
