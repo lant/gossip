@@ -5,13 +5,8 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        networks:
-            - testing_net
-
-    propagator:
-        build:
-            context: .
-            dockerfile: Dockerfile-propagator
+        ports: 
+          - "7000-7100:7000"
         networks:
             - testing_net
 

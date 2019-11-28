@@ -2,7 +2,6 @@ package com.github.lant.gossip;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.github.lant.gossip.rpc.Value;
 import com.github.lant.gossip.server.GossipServer;
 
 import java.io.IOException;
@@ -17,14 +16,8 @@ public class Gossip {
     @Parameter(names={"--machines", "-m"})
     int totalMachines = 10;
 
-    // When a server starts it can try to read its old persisted state (if any)
     @Parameter(names = "--skip-state", description = "Don't try to recover old state")
     private boolean tryToRecover = true;
-
-    // If the server has this flag it will propagate a new value to the rest of the
-    // cluster. This could be a separate program.
-    @Parameter(names = "--propagate", description = "Propagate new value")
-    private String startPropagation = null;
 
     private void run() throws IOException, InterruptedException {
         System.out.printf("Hi, I'm %s\n", InetAddress.getLocalHost().getHostAddress());
@@ -36,15 +29,6 @@ public class Gossip {
             System.out.println("Try to recover state from a previous execution");
             // get the old value from the file.
             stateHandler.recoverFromFile();
-        }
-
-        // TODO remove this and put into a client or a specialized role.
-        if (startPropagation != null) {
-            System.out.printf("[Machine %s] I'm propagating %s to the network\n", InetAddress.getLocalHost().getHostAddress(), startPropagation);
-            Value newValue = Value.newBuilder().setValue(startPropagation).setTimestamp(System.currentTimeMillis()).build();
-            // update myself
-            stateHandler.updateCurrent(newValue);
-            gossipStrategy.propagate(newValue);
         }
 
         // start the periodic propagation thread.
