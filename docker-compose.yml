@@ -7,6 +7,11 @@ services:
             dockerfile: Dockerfile
         ports: 
           - "7000-7100:7000"
+        depends_on:
+          - jaeger
+        environment:
+            - JAEGER_AGENT_HOST=jaeger
+            - JAEGER_AGENT_PORT=6831
         links:
           - jaeger
         networks:
