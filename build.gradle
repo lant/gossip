@@ -48,4 +48,5 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha4'
     implementation 'ch.qos.logback:logback-core:1.3.0-alpha4'
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha0'
+    implementation 'io.jaegertracing:jaeger-client:1.0.0'
 }
