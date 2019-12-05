@@ -16,20 +16,11 @@ public class Gossip {
     @Parameter(names={"--machines", "-m"})
     int totalMachines = 10;
 
-    @Parameter(names = "--skip-state", description = "Don't try to recover old state")
-    private boolean tryToRecover = true;
-
     private void run() throws IOException, InterruptedException {
         System.out.printf("Hi, I'm %s\n", InetAddress.getLocalHost().getHostAddress());
         StateHandler stateHandler = new StateHandler();
         GossipStrategy gossipStrategy = new GossipStrategy(totalMachines);
         PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler);
-
-        if (tryToRecover) {
-            System.out.println("Try to recover state from a previous execution");
-            // get the old value from the file.
-            stateHandler.recoverFromFile();
-        }
 
         // start the periodic propagation thread.
         new Thread(periodicPropagator).start();

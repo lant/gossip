@@ -8,9 +8,6 @@ import com.github.lant.gossip.rpc.Value;
 public class StateHandler {
     private Value current = null;
 
-    public void recoverFromFile() {
-    }
-
     public Value currentOrNull() {
         return current;
     }
