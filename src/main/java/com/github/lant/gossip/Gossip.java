@@ -5,7 +5,6 @@ import com.beust.jcommander.Parameter;
 import com.github.lant.gossip.server.GossipServer;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 /**
  * Main class that starts the server and checks the CLI's
@@ -17,7 +16,6 @@ public class Gossip {
     int totalMachines = 10;
 
     private void run() throws IOException, InterruptedException {
-        System.out.printf("Hi, I'm %s\n", InetAddress.getLocalHost().getHostAddress());
         StateHandler stateHandler = new StateHandler();
         GossipStrategy gossipStrategy = new GossipStrategy(totalMachines);
         PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler);

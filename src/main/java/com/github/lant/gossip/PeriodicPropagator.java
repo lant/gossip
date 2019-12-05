@@ -1,6 +1,13 @@
 package com.github.lant.gossip;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.github.lant.gossip.logging.Logg.hostname;
+import static net.logstash.logback.argument.StructuredArguments.keyValue;
+
 public class PeriodicPropagator implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(PeriodicPropagator.class);
 
     private static final long TEN_SECONDS = 10_000;
     private final GossipStrategy gossipStrategy;
@@ -17,11 +24,11 @@ public class PeriodicPropagator implements Runnable {
         while (keepRunning) {
             try {
                 Thread.sleep(TEN_SECONDS);
-                System.out.println("I'm going to propagate my value JYI");
                 if (stateHandler.hasCurrentValue()) {
+                    log.info("Propagate value {}, ", keyValue("value", stateHandler.getValue()), hostname());
                     gossipStrategy.propagate(stateHandler.getValue());
                 } else {
-                    System.out.println("Bah, I don't have any value, skipping.");
+                    log.info("No value yet", hostname());
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static com.github.lant.gossip.logging.Logg.hostname;
+
 public class GossipServer {
     public static final int RPC_PORT = 7000;
     private static final Logger log = LoggerFactory.getLogger(GossipServer.class);
@@ -22,7 +24,7 @@ public class GossipServer {
 
     public void start() throws IOException, InterruptedException {
         server.start();
-        log.info("Server started");
+        log.info("Started server {}", hostname());
         server.awaitTermination();
     }
 

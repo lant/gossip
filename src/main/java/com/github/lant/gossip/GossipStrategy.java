@@ -1,6 +1,5 @@
 package com.github.lant.gossip;
 
-import com.github.lant.gossip.rpc.Ack;
 import com.github.lant.gossip.rpc.GossipListenerGrpc;
 import com.github.lant.gossip.rpc.Value;
 import com.github.lant.gossip.server.GossipServer;
@@ -15,6 +14,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.github.lant.gossip.logging.Logg.hostname;
 import static com.github.lant.gossip.server.GossipServer.RPC_PORT;
 
 /**
@@ -46,23 +46,20 @@ public class GossipStrategy {
         for (int comms = 0; comms < FANOUT; comms++) {
             String destinationNode = selectObjectiveNode();
             try {
-                log.info("Sending value to node: {}", destinationNode);
-                if (!propagateToNode(destinationNode, newValue)) {
-                    log.info("[Machine {}] Could not communicate with {}", InetAddress.getLocalHost().getHostAddress(), destinationNode);
-                }
+                log.info("Sending value to node: {}", destinationNode, hostname());
+                propagateToNode(destinationNode, newValue);
             } catch (Exception e) {
                 // network exception or things like these
-                log.error("Could not propagate to {}, Reason: {}", destinationNode, e.getMessage());
+                log.error("Could not propagate to {}, Reason: {}", destinationNode, e.getMessage(), hostname());
             }
         }
     }
 
     // RPC operation to send the vale to the other node.
-    private boolean propagateToNode(String destinationNode, Value newValue) {
+    private void propagateToNode(String destinationNode, Value newValue) {
         Channel channel = ManagedChannelBuilder.forAddress(destinationNode, RPC_PORT).usePlaintext().build();
         GossipListenerGrpc.GossipListenerBlockingStub client = GossipListenerGrpc.newBlockingStub(channel);
-        Ack response = client.receiveValue(newValue);
-        return response.getSuccess();
+        client.receiveValue(newValue);
     }
 
     /**
