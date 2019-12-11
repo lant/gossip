@@ -6,18 +6,16 @@ import com.github.lant.gossip.rpc.Value;
  * This class needs to be implemented if we want the system to be able to persist the state between reboots.
  */
 public class StateHandler {
-    private Value current = null;
+    private static final Value NONE = Value.newBuilder().setValue("NONE").setTimestamp(0L).build();
 
-    public Value currentOrNull() {
-        return current;
-    }
+    private Value current = NONE;
 
     public Value getValue() {
         return current;
     }
 
     public boolean hasCurrentValue() {
-        return current != null;
+        return (current.getTimestamp() != 0L);
     }
 
     public void updateCurrent(Value request) {

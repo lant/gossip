@@ -8,19 +8,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class StateHandlerTest {
 
     @Test
-    void currentOrNullWithEmptyValueIsNull() {
-        StateHandler stateHandler = new StateHandler();
-        assertNull(stateHandler.currentOrNull());
-    }
-
-    @Test
-    void currentOrNullWithValueIsNotNull() {
-        StateHandler stateHandler = new StateHandler();
-        stateHandler.updateCurrent(getAValue());
-        assertNotNull(stateHandler.currentOrNull());
-    }
-
-    @Test
     void getValue() {
         StateHandler stateHandler = new StateHandler();
         stateHandler.updateCurrent(getAValue());

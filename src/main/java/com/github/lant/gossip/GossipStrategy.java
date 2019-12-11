@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.github.lant.gossip.logging.Logg.hostname;
+import static com.github.lant.gossip.logging.Logg.message;
 import static com.github.lant.gossip.server.GossipServer.RPC_PORT;
 
 /**
@@ -39,15 +40,14 @@ public class GossipStrategy {
 
     // fire and forget. Propagate the value without waiting for the result.
     public void propagate(Value newValue) {
-        executor.submit(() -> tryToPropagate(newValue));
+        executor.submit(() -> propagateToNodes(newValue));
     }
 
-    private void tryToPropagate(Value newValue) {
+    private void propagateToNodes(Value newValue) {
         for (int comms = 0; comms < FANOUT; comms++) {
             String destinationNode = selectObjectiveNode();
             try {
-                log.info("Sending value to node: {}", destinationNode, hostname());
-                propagateToNode(destinationNode, newValue);
+                propagateToSingleNode(destinationNode, newValue);
             } catch (Exception e) {
                 // network exception or things like these
                 log.error("Could not propagate to {}, Reason: {}", destinationNode, e.getMessage(), hostname());
@@ -56,7 +56,8 @@ public class GossipStrategy {
     }
 
     // RPC operation to send the vale to the other node.
-    private void propagateToNode(String destinationNode, Value newValue) {
+    private void propagateToSingleNode(String destinationNode, Value newValue) {
+        log.info("Sending value to node: {}", destinationNode, hostname(), message());
         Channel channel = ManagedChannelBuilder.forAddress(destinationNode, RPC_PORT).usePlaintext().build();
         GossipListenerGrpc.GossipListenerBlockingStub client = GossipListenerGrpc.newBlockingStub(channel);
         client.receiveValue(newValue);

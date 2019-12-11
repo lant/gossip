@@ -28,7 +28,7 @@ public class PeriodicPropagator implements Runnable {
                     log.info("Propagate value {}, ", keyValue("value", stateHandler.getValue()), hostname());
                     gossipStrategy.propagate(stateHandler.getValue());
                 } else {
-                    log.info("No value yet", hostname());
+                    log.info("No value yet", keyValue("value", stateHandler.getValue()), hostname());
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
