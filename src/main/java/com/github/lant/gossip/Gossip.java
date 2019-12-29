@@ -1,7 +1,6 @@
 package com.github.lant.gossip;
 
 import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
 import com.github.lant.gossip.server.GossipServer;
 
 import java.io.IOException;
@@ -11,14 +10,16 @@ import java.io.IOException;
  */
 public class Gossip {
 
-    // used to know the maximum IP ranges
-    @Parameter(names={"--machines", "-m"})
-    int totalMachines = 10;
-
     private void run() throws IOException, InterruptedException {
         StateHandler stateHandler = new StateHandler();
-        GossipStrategy gossipStrategy = new GossipStrategy(totalMachines);
+        Peers peers = new Peers();
+        GossipStrategy gossipStrategy = new GossipStrategy(peers);
         PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler);
+
+        while(peers.empty()) {
+            gossipStrategy.connectToPeers();
+            Thread.sleep(1000L);
+        }
 
         // start the periodic propagation thread.
         new Thread(periodicPropagator).start();

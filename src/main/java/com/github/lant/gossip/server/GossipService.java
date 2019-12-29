@@ -24,12 +24,6 @@ public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
     }
 
     @Override
-    public void getLatestValue(Empty request, StreamObserver<Value> responseObserver) {
-        responseObserver.onNext(stateHandler.getValue());
-        responseObserver.onCompleted();
-    }
-
-    @Override
     public void receiveValue(Value request, StreamObserver<Empty> responseObserver) {
         // 3 things could happen here:
 
