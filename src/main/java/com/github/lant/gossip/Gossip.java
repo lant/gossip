@@ -15,21 +15,20 @@ public class Gossip {
         Peers peers = new Peers();
         GossipStrategy gossipStrategy = new GossipStrategy(peers);
         PeriodicPropagator periodicPropagator = new PeriodicPropagator(gossipStrategy, stateHandler);
+        Bootstrapper bootstrapper = new Bootstrapper(peers);
 
-        while(peers.empty()) {
-            gossipStrategy.connectToPeers();
-            Thread.sleep(1000L);
-        }
+        // try to find other peers
+        new Thread(bootstrapper).start();
 
         // start the periodic propagation thread.
         new Thread(periodicPropagator).start();
 
         // just listen to incoming messages and block
-        listenToMessages(stateHandler, gossipStrategy);
+        listenToMessages(stateHandler, gossipStrategy, peers);
     }
 
-    private void listenToMessages(StateHandler stateHandler, GossipStrategy gossipStrategy) throws IOException, InterruptedException {
-        new GossipServer(stateHandler, gossipStrategy).start();
+    private void listenToMessages(StateHandler stateHandler, GossipStrategy gossipStrategy, Peers peers) throws IOException, InterruptedException {
+        new GossipServer(stateHandler, gossipStrategy, peers).start();
     }
 
     public static void main(String ...args) throws IOException, InterruptedException {

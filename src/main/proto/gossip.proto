@@ -13,6 +13,7 @@ service GossipListener {
 message Value {
     int64 timestamp = 1;
     string value = 2;
+    repeated string peers = 3;
 }
 
 message Discovery {

@@ -1,5 +1,6 @@
 package com.github.lant.gossip.logging;
 
+import com.github.lant.gossip.Peers;
 import net.logstash.logback.argument.StructuredArgument;
 
 import java.net.InetAddress;
@@ -25,5 +26,9 @@ public class Logg {
      */
     public static StructuredArgument message() {
         return keyValue("messageSent", true);
+    }
+
+    public static StructuredArgument knownPeers(Peers peers) {
+        return keyValue("knownPeers", peers.getPeers().size());
     }
 }

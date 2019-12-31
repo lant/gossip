@@ -18,8 +18,20 @@ The current implementation is a very naive and primitive `push based` strategy:
 * The nodes periodically propagate their value to 3 random nodes in the network.
 * The nodes compare the value they receive with a version, right now it's the timestamp when the value was created by the `propagator`
 * When a node receives a new value it propagates it immediately without waiting for the periodic propagation.
+* If the value is the same, or an older one it silently ignores it. 
 
 These simple features are the basic ones for a proper gossip protocol.
+
+### Bootstrapping and peer information propagation
+Bootstrapping and peer discovery is also an interesting problem to solve. Currently when a peer starts it checks its network 
+and starts querying the possible nodes in that network from bottom to top (starting at X.X.X.1 to X.X.X.X) in order to find
+another peer. 
+
+When it finds a peer they share their contact info. After that the initial bootstrap process is finished. 
+
+After the initial bootstrap to set up the system every subsequent interchange of information (value propagation) also contains
+information about the known nodes. So, the propagated values contain the value, the timestamp and information about the known
+peers from every peer. This way we guarantee that the peer contact information is continuously updated in all the peers. 
 
 For further ideas and information check the bibliography section.
 
@@ -62,14 +74,6 @@ and then just use one of the mapped ones:
 `./propagate -p 7009 --value asdf`
 
 This will propagate the value `asdf` into the nodes. It will use `node_1` as the initial propagator.
-
-### Sharp edges
-This initial implementation has still some sharp edges that you need to know if you use this as a toy or research project, all of the issues here are well known and will be fixed asap.
-
-* The initial gossip protocol decides randomly to which node it will try to propagate the value. The system assumes that all the nodes will be in the same network, that the IP's start at X.X.X.0 and there is a 
-  [default value](https://github.com/lant/gossip/blob/master/src/main/java/com/github/lant/gossip/Gossip.java#L16) of 10 that's being used as the number of nodes in the cluster. If you want test the system with 
-  more than 10 nodes you'll have to change the value in the Dockerfile.
-* No junit tests.
 
 ## Bibliography
 

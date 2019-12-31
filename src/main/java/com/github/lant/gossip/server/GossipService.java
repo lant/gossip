@@ -1,7 +1,10 @@
 package com.github.lant.gossip.server;
 
 import com.github.lant.gossip.GossipStrategy;
+import com.github.lant.gossip.Peers;
 import com.github.lant.gossip.StateHandler;
+import com.github.lant.gossip.rpc.Discovery;
+import com.github.lant.gossip.rpc.DiscoveryResponse;
 import com.github.lant.gossip.rpc.GossipListenerGrpc;
 import com.github.lant.gossip.rpc.Value;
 import com.google.protobuf.Empty;
@@ -16,11 +19,13 @@ public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
     private static final Logger log = LoggerFactory.getLogger(GossipService.class);
     private final StateHandler stateHandler;
     private final GossipStrategy gossipStrategy;
+    private final Peers peers;
 
-    GossipService(StateHandler stateHandler, GossipStrategy gossipStrategy) {
+    GossipService(StateHandler stateHandler, GossipStrategy gossipStrategy, Peers peers) {
         super();
         this.stateHandler = stateHandler;
         this.gossipStrategy = gossipStrategy;
+        this.peers = peers;
     }
 
     @Override
@@ -45,6 +50,20 @@ public class GossipService extends GossipListenerGrpc.GossipListenerImplBase {
             responseObserver.onNext(Empty.newBuilder().build());
             gossipStrategy.propagate(request);
         }
+
+        // Either way, try to get more peers information
+        for (int peerIdx = 0; peerIdx < request.getPeersCount(); peerIdx++) {
+            peers.addPeer(request.getPeers(peerIdx));
+        }
+
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void hi(Discovery request, StreamObserver<DiscoveryResponse> responseObserver) {
+        peers.addPeer(request.getMyip());
+        log.info("Bootstrapping {}.", request.getMyip(), hostname());
+        responseObserver.onNext(DiscoveryResponse.newBuilder().addAllIps(peers.getPeers()).build());
         responseObserver.onCompleted();
     }
 }
